@@ -15,26 +15,44 @@
 using namespace cv;
 using namespace std;
 
+string VIDEO = "VIDEO in PLAYING";
+
 int main(int argc, char **argv){
 
-	VideoCapture cap(0);
+	VideoCapture cap(argv[1]);
+
 	if(!cap.isOpened()){
-		cout << "Error while reading a video ";
+		cout << "can not open the video ";
 		return -1;
 	}
-	
-	Mat frame, edges;
-	namedWindow("VIDEO", WINDOW_AUTOSIZE);
 
-	for(;;){
-		cap >> frame;
-		cvtColor(frame, edges, COLOR_BGR2GRAY);
-		GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
-		Canny(edges, edges, 0, 30, 3);
-		imshow("edges", edges);
-		if(waitKey(30) >= 0) break;
-	}
+	//This will start the video from the middle
+	//cap.set(CAP_PROP_POS_MSEC, 300); 
+
+	//get the frames rate of the video
+	// There is no need of frame ration in playing video
+	double fps = cap.get(CAP_PROP_FPS);  //CAP_PROP_FPS - Frame rate of the video will be get
+	cout << "Frames per seconds : " << fps << endl;
 	
-	// destroyWindow("VIDEO");
+	namedWindow(VIDEO, WINDOW_AUTOSIZE);
+
+
+	while(true){
+		Mat frame;
+
+		bool isFrameRead = cap.read(frame);
+		if(!isFrameRead){
+			cout << "found the end of the video";
+			break;
+		}
+
+		imshow(VIDEO, frame);
+
+		if( waitKey(20) == 27) {
+			cout << "ESC is pressed by user. Stopping the video";
+			break;
+		}
+
+	}
 	return 0;
 }
